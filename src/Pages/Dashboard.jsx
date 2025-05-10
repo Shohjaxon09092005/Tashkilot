@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DatePicker from "react-datepicker";
 import { uz } from 'date-fns/locale';
 import "react-datepicker/dist/react-datepicker.css";
+
 function Dashboard() {
   const tabs = ["Xodimlar", "Bo‘limlar", "Topshiriqlar", "Hisobotlar", "Hujjatlar"];
   const [activeTab, setActiveTab] = useState("Xodimlar");
@@ -11,65 +12,108 @@ function Dashboard() {
     JSON.parse(localStorage.getItem("employees")) || []
   );
   const [empForm, setEmpForm] = useState({ name: "", position: "", department: "", contact: "" });
-
-  useEffect(() => {
-    localStorage.setItem("employees", JSON.stringify(employees));
-  }, [employees]);
-
-  const addEmployee = () => {
-    if (empForm.name) {
-      setEmployees([...employees, empForm]);
-      setEmpForm({ name: "", position: "", department: "", contact: "" });
-    }
-  };
+  const [editingEmpIndex, setEditingEmpIndex] = useState(null);
 
   // Bo‘limlar
   const [departments, setDepartments] = useState(
     JSON.parse(localStorage.getItem("departments")) || []
   );
   const [depForm, setDepForm] = useState({ name: "", head: "", status: "" });
-
-  useEffect(() => {
-    localStorage.setItem("departments", JSON.stringify(departments));
-  }, [departments]);
-
-  const addDepartment = () => {
-    if (depForm.name) {
-      setDepartments([...departments, depForm]);
-      setDepForm({ name: "", head: "", status: "" });
-    }
-  };
+  const [editingDepIndex, setEditingDepIndex] = useState(null);
 
   // Topshiriqlar
   const [tasks, setTasks] = useState(JSON.parse(localStorage.getItem("tasks")) || []);
   const [taskForm, setTaskForm] = useState({ title: "", assignedTo: "", deadline: "", status: "" });
-
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
-
-  const addTask = () => {
-    if (taskForm.title) {
-      setTasks([...tasks, taskForm]);
-      setTaskForm({ title: "", assignedTo: "", deadline: "", status: "" });
-    }
-  };
+  const [editingTaskIndex, setEditingTaskIndex] = useState(null);
 
   // Hujjatlar
   const [docs, setDocs] = useState(JSON.parse(localStorage.getItem("docs")) || []);
   const [docForm, setDocForm] = useState({ name: "", description: "" });
+  const [editingDocIndex, setEditingDocIndex] = useState(null);
 
+  // Umumiy effektlar
   useEffect(() => {
+    localStorage.setItem("employees", JSON.stringify(employees));
+    localStorage.setItem("departments", JSON.stringify(departments));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
     localStorage.setItem("docs", JSON.stringify(docs));
-  }, [docs]);
+  }, [employees, departments, tasks, docs]);
 
-  const addDoc = () => {
-    if (docForm.name) {
-      setDocs([...docs, docForm]);
-      setDocForm({ name: "", description: "" });
+  // Xodimlar funksiyalari
+  const handleEmployee = () => {
+    if (!empForm.name) return;
+    
+    const newEmployees = [...employees];
+    if (editingEmpIndex !== null) {
+      newEmployees[editingEmpIndex] = empForm;
+      setEditingEmpIndex(null);
+    } else {
+      newEmployees.push(empForm);
     }
+    setEmployees(newEmployees);
+    setEmpForm({ name: "", position: "", department: "", contact: "" });
   };
 
+  const deleteEmployee = (index) => {
+    setEmployees(employees.filter((_, i) => i !== index));
+  };
+
+  // Bo‘limlar funksiyalari
+  const handleDepartment = () => {
+    if (!depForm.name) return;
+    
+    const newDepartments = [...departments];
+    if (editingDepIndex !== null) {
+      newDepartments[editingDepIndex] = depForm;
+      setEditingDepIndex(null);
+    } else {
+      newDepartments.push(depForm);
+    }
+    setDepartments(newDepartments);
+    setDepForm({ name: "", head: "", status: "" });
+  };
+
+  const deleteDepartment = (index) => {
+    setDepartments(departments.filter((_, i) => i !== index));
+  };
+
+  // Topshiriqlar funksiyalari
+  const handleTask = () => {
+    if (!taskForm.title) return;
+    
+    const newTasks = [...tasks];
+    if (editingTaskIndex !== null) {
+      newTasks[editingTaskIndex] = taskForm;
+      setEditingTaskIndex(null);
+    } else {
+      newTasks.push({...taskForm, deadline: taskForm.deadline?.toISOString()});
+    }
+    setTasks(newTasks);
+    setTaskForm({ title: "", assignedTo: "", deadline: "", status: "" });
+  };
+
+  const deleteTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
+
+  // Hujjatlar funksiyalari
+  const handleDocument = () => {
+    if (!docForm.name) return;
+    
+    const newDocs = [...docs];
+    if (editingDocIndex !== null) {
+      newDocs[editingDocIndex] = docForm;
+      setEditingDocIndex(null);
+    } else {
+      newDocs.push(docForm);
+    }
+    setDocs(newDocs);
+    setDocForm({ name: "", description: "" });
+  };
+
+  const deleteDocument = (index) => {
+    setDocs(docs.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="container">
@@ -90,15 +134,30 @@ function Dashboard() {
         {activeTab === "Xodimlar" && (
           <>
             <h2>Yangi xodim qo‘shish</h2>
-            <input placeholder="Ism" value={empForm.name} onChange={(e) => setEmpForm({ ...empForm, name: e.target.value })} />
-            <input placeholder="Lavozim" value={empForm.position} onChange={(e) => setEmpForm({ ...empForm, position: e.target.value })} />
-            <input placeholder="Bo‘lim" value={empForm.department} onChange={(e) => setEmpForm({ ...empForm, department: e.target.value })} />
-            <input placeholder="Aloqa" value={empForm.contact} onChange={(e) => setEmpForm({ ...empForm, contact: e.target.value })} />
-            <button onClick={addEmployee}>Qo‘shish</button>
+            <div className="form">
+              <input placeholder="Ism" value={empForm.name} onChange={(e) => setEmpForm({ ...empForm, name: e.target.value })} />
+              <input placeholder="Lavozim" value={empForm.position} onChange={(e) => setEmpForm({ ...empForm, position: e.target.value })} />
+              <input placeholder="Bo‘lim" value={empForm.department} onChange={(e) => setEmpForm({ ...empForm, department: e.target.value })} />
+              <input placeholder="Aloqa" value={empForm.contact} onChange={(e) => setEmpForm({ ...empForm, contact: e.target.value })} />
+              <button className="save-btn" onClick={handleEmployee}>
+                {editingEmpIndex !== null ? "Saqlash" : "Qo‘shish"}
+              </button>
+            </div>
 
-            <ul>
+            <ul className="list">
               {employees.map((e, i) => (
-                <li key={i}>{e.name} - {e.position} ({e.department}) [{e.contact}]</li>
+                <li key={i}>
+                  <div className="list-item">
+                    <span>{e.name} - {e.position} ({e.department}) [{e.contact}]</span>
+                    <div>
+                      <button className="edit-btn" onClick={() => {
+                        setEmpForm(e);
+                        setEditingEmpIndex(i);
+                      }}>Tahrirlash</button>
+                      <button className="delete-btn" onClick={() => deleteEmployee(i)}>O‘chirish</button>
+                    </div>
+                  </div>
+                </li>
               ))}
             </ul>
           </>
@@ -107,14 +166,29 @@ function Dashboard() {
         {activeTab === "Bo‘limlar" && (
           <>
             <h2>Bo‘lim qo‘shish</h2>
-            <input placeholder="Bo‘lim nomi" value={depForm.name} onChange={(e) => setDepForm({ ...depForm, name: e.target.value })} />
-            <input placeholder="Mas’ul shaxs" value={depForm.head} onChange={(e) => setDepForm({ ...depForm, head: e.target.value })} />
-            <input placeholder="Holati" value={depForm.status} onChange={(e) => setDepForm({ ...depForm, status: e.target.value })} />
-            <button onClick={addDepartment}>Qo‘shish</button>
+            <div className="form">
+              <input placeholder="Bo‘lim nomi" value={depForm.name} onChange={(e) => setDepForm({ ...depForm, name: e.target.value })} />
+              <input placeholder="Mas’ul shaxs" value={depForm.head} onChange={(e) => setDepForm({ ...depForm, head: e.target.value })} />
+              <input placeholder="Holati" value={depForm.status} onChange={(e) => setDepForm({ ...depForm, status: e.target.value })} />
+              <button className="save-btn" onClick={handleDepartment}>
+                {editingDepIndex !== null ? "Saqlash" : "Qo‘shish"}
+              </button>
+            </div>
 
-            <ul>
+            <ul className="list">
               {departments.map((d, i) => (
-                <li key={i}>{d.name} - {d.head} [{d.status}]</li>
+                <li key={i}>
+                  <div className="list-item">
+                    <span>{d.name} - {d.head} [{d.status}]</span>
+                    <div>
+                      <button className="edit-btn" onClick={() => {
+                        setDepForm(d);
+                        setEditingDepIndex(i);
+                      }}>Tahrirlash</button>
+                      <button className="delete-btn" onClick={() => deleteDepartment(i)}>O‘chirish</button>
+                    </div>
+                  </div>
+                </li>
               ))}
             </ul>
           </>
@@ -123,27 +197,45 @@ function Dashboard() {
         {activeTab === "Topshiriqlar" && (
           <>
             <h2>Topshiriq qo‘shish</h2>
-            <input placeholder="Topshiriq" value={taskForm.title} onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })} />
-            <input placeholder="Javobgar" value={taskForm.assignedTo} onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })} />
-            <input placeholder="Holat" value={taskForm.status} onChange={(e) => setTaskForm({ ...taskForm, status: e.target.value })} />
-            <DatePicker
-              selected={taskForm.deadline ? new Date(taskForm.deadline) : null}
-              onChange={(date) => setTaskForm({ ...taskForm, deadline: date })}
-              locale={uz}
-              dateFormat="dd MMMM yyyy"
-              placeholderText="Sana tanlang"
-            />
+            <div className="form">
+              <input placeholder="Topshiriq" value={taskForm.title} onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })} />
+              <input placeholder="Javobgar" value={taskForm.assignedTo} onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })} />
+              <input placeholder="Holat" value={taskForm.status} onChange={(e) => setTaskForm({ ...taskForm, status: e.target.value })} />
+              <DatePicker
+                selected={taskForm.deadline ? new Date(taskForm.deadline) : null}
+                onChange={(date) => setTaskForm({ ...taskForm, deadline: date })}
+                locale={uz}
+                dateFormat="dd MMMM yyyy"
+                placeholderText="Muddat"
+                className="date-picker"
+              />
+              <button className="save-btn" onClick={handleTask}>
+                {editingTaskIndex !== null ? "Saqlash" : "Qo‘shish"}
+              </button>
+            </div>
 
-            <button onClick={addTask}>Qo‘shish</button>
-
-            <ul>
+            <ul className="list">
               {tasks.map((t, i) => (
                 <li key={i}>
-                  {t.title} - {t.assignedTo}, {
-                    t.deadline
-                      ? new Date(t.deadline).toLocaleDateString("uz-UZ", { day: '2-digit', month: 'long', year: 'numeric' })
-                      : ""
-                  } [{t.status}]
+                  <div className="list-item">
+                    <span>
+                      {t.title} - {t.assignedTo}, {
+                        t.deadline
+                          ? new Date(t.deadline).toLocaleDateString("uz-UZ", { day: '2-digit', month: 'long', year: 'numeric' })
+                          : ""
+                      } [{t.status}]
+                    </span>
+                    <div>
+                      <button className="edit-btn" onClick={() => {
+                        setTaskForm({
+                          ...t,
+                          deadline: t.deadline ? new Date(t.deadline) : null
+                        });
+                        setEditingTaskIndex(i);
+                      }}>Tahrirlash</button>
+                      <button className="delete-btn" onClick={() => deleteTask(i)}>O‘chirish</button>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -153,23 +245,52 @@ function Dashboard() {
         {activeTab === "Hisobotlar" && (
           <>
             <h2>Statistik Ma’lumotlar</h2>
-            <p>👨‍💼 Xodimlar soni: {employees.length}</p>
-            <p>🏢 Bo‘limlar soni: {departments.length}</p>
-            <p>📋 Topshiriqlar soni: {tasks.length}</p>
-            <p>📁 Hujjatlar soni: {docs.length}</p>
+            <div className="stats">
+              <div className="stat-item">
+                <span>👨‍💼 Xodimlar soni:</span>
+                <span>{employees.length}</span>
+              </div>
+              <div className="stat-item">
+                <span>🏢 Bo‘limlar soni:</span>
+                <span>{departments.length}</span>
+              </div>
+              <div className="stat-item">
+                <span>📋 Topshiriqlar soni:</span>
+                <span>{tasks.length}</span>
+              </div>
+              <div className="stat-item">
+                <span>📁 Hujjatlar soni:</span>
+                <span>{docs.length}</span>
+              </div>
+            </div>
           </>
         )}
 
         {activeTab === "Hujjatlar" && (
           <>
             <h2>Hujjat qo‘shish</h2>
-            <input placeholder="Nomi" value={docForm.name} onChange={(e) => setDocForm({ ...docForm, name: e.target.value })} />
-            <input placeholder="Tavsifi" value={docForm.description} onChange={(e) => setDocForm({ ...docForm, description: e.target.value })} />
-            <button onClick={addDoc}>Qo‘shish</button>
+            <div className="form">
+              <input placeholder="Nomi" value={docForm.name} onChange={(e) => setDocForm({ ...docForm, name: e.target.value })} />
+              <input placeholder="Tavsifi" value={docForm.description} onChange={(e) => setDocForm({ ...docForm, description: e.target.value })} />
+              <button className="save-btn" onClick={handleDocument}>
+                {editingDocIndex !== null ? "Saqlash" : "Qo‘shish"}
+              </button>
+            </div>
 
-            <ul>
+            <ul className="list">
               {docs.map((d, i) => (
-                <li key={i}>{d.name} - {d.description}</li>
+                <li key={i}>
+                  <div className="list-item">
+                    <span>{d.name} - {d.description}</span>
+                    <div>
+                      <button className="edit-btn" onClick={() => {
+                        setDocForm(d);
+                        setEditingDocIndex(i);
+                      }}>Tahrirlash</button>
+                      <button className="delete-btn" onClick={() => deleteDocument(i)}>O‘chirish</button>
+                    </div>
+                  </div>
+                </li>
               ))}
             </ul>
           </>
