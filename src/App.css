@@ -1,0 +1,108 @@
+/* Global */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* Header */
+h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tabs button {
+  flex: 1;
+  min-width: 120px;
+  background-color: #e4e6eb;
+  color: #333;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.tabs button.active {
+  background-color: #007bff;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.tabs button:hover {
+  background-color: #d0d3d8;
+}
+
+/* Forms */
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+/* Buttons */
+button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.3s ease;
+  margin-bottom: 15px;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+/* Card-style lists */
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  background-color: #f8f9fa;
+  margin-bottom: 10px;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  font-size: 15px;
+}
+
+/* Section Titles */
+h2 {
+  color: #444;
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
