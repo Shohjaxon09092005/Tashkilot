@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-
+import DatePicker from "react-datepicker";
+import { uz } from 'date-fns/locale';
+import "react-datepicker/dist/react-datepicker.css";
 function Dashboard() {
-const tabs = ["Xodimlar", "Bo‘limlar", "Topshiriqlar", "Hisobotlar", "Hujjatlar"];
+  const tabs = ["Xodimlar", "Bo‘limlar", "Topshiriqlar", "Hisobotlar", "Hujjatlar"];
   const [activeTab, setActiveTab] = useState("Xodimlar");
 
   // Xodimlar
@@ -70,7 +72,7 @@ const tabs = ["Xodimlar", "Bo‘limlar", "Topshiriqlar", "Hisobotlar", "Hujjatla
 
 
   return (
-     <div className="container">
+    <div className="container">
       <h1>Tashkilotni Avtomatlashtirish Tizimi</h1>
       <div className="tabs">
         {tabs.map((tab) => (
@@ -123,13 +125,26 @@ const tabs = ["Xodimlar", "Bo‘limlar", "Topshiriqlar", "Hisobotlar", "Hujjatla
             <h2>Topshiriq qo‘shish</h2>
             <input placeholder="Topshiriq" value={taskForm.title} onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })} />
             <input placeholder="Javobgar" value={taskForm.assignedTo} onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })} />
-            <input type="date" value={taskForm.deadline} onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })} />
             <input placeholder="Holat" value={taskForm.status} onChange={(e) => setTaskForm({ ...taskForm, status: e.target.value })} />
+            <DatePicker
+              selected={taskForm.deadline ? new Date(taskForm.deadline) : null}
+              onChange={(date) => setTaskForm({ ...taskForm, deadline: date })}
+              locale={uz}
+              dateFormat="dd MMMM yyyy"
+              placeholderText="Sana tanlang"
+            />
+
             <button onClick={addTask}>Qo‘shish</button>
 
             <ul>
               {tasks.map((t, i) => (
-                <li key={i}>{t.title} - {t.assignedTo}, {t.deadline} [{t.status}]</li>
+                <li key={i}>
+                  {t.title} - {t.assignedTo}, {
+                    t.deadline
+                      ? new Date(t.deadline).toLocaleDateString("uz-UZ", { day: '2-digit', month: 'long', year: 'numeric' })
+                      : ""
+                  } [{t.status}]
+                </li>
               ))}
             </ul>
           </>
